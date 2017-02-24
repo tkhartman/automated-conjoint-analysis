@@ -1,8 +1,8 @@
 ##' ---
-##' title: "Customized Conjoint Analysis"
+##' title: "Automated Conjoint Analysis"
 ##' author: "Todd K. Hartman"
 ##' date: "`r format(Sys.Date())`"
-##' output: "html_document"
+##' output: "github_document"
 ##' ---
 
 ##' Housekeeping
