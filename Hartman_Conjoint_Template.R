@@ -20,7 +20,7 @@ qualtrics <- "ENTER YOUR FILE NAME HERE"
 data.name <- paste(qualtrics, "csv", sep = ".")  # Create the full data name (with .csv)
 
 ## Load the raw .csv from Qualtrics
-df.raw <- read.csv(data.name, header = FALSE, check.names = FALSE)
+df.raw <- read.csv(data.name, header = FALSE, check.names = TRUE)
 
 ## Fix the variable names and make sure first 2 rows match
 df.raw[2, ] <- df.raw[1, ]
