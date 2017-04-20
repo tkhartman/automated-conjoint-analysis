@@ -15,12 +15,19 @@ getwd()  # Get the current working directory
 # setwd("~/ENTER/YOUR/FOLDER/PATH/HERE")  # For Mac OSX 
 
 ##' CUSTOMIZE THIS PART FOR EACH PROJECT
-## 1. ENTER your Qualtrics file name (exactly as it appears in the quotes)
-qualtrics <- "ENTER YOUR FILE NAME HERE"  
-data.name <- paste(qualtrics, "csv", sep = ".")  # Create the full data name (with .csv)
+## 1. ENTER your Qualtrics file name (exactly as it appears without the .csv; quotes required)
+qualtrics <- "ENTER YOUR FILE NAME HERE"
 
-## Load the raw .csv from Qualtrics
-df.raw <- read.csv(data.name, header = FALSE, check.names = FALSE)
+## 2. ENTER the number of different conjoint experiments (default is 1)
+cj.exp <- 1
+
+## 3. LIST preferences from each conjoint experiment (answer choices)
+cj.prefs <- vector(mode="list", cj.exp)
+cj.prefs[[1]] <- c("ENTER", "ENTER", "ENTER")  # Conjoint 1, replace 'ENTER' with each variable name
+
+##' Prepare the data
+data.name <- paste(qualtrics, "csv", sep = ".")  # Create the file name
+df.raw <- read.csv(data.name, header = FALSE, check.names = FALSE)  ## Load the raw .csv
 
 ## Fix the variable names and make sure first 2 rows match
 df.raw[2, ] <- df.raw[1, ]
@@ -31,17 +38,10 @@ df.raw = df.raw[-1, ]
 ## Print the variable names
 names(df.raw)
 
-## 2. Create a new unique respondent identifier
+## Create a new unique respondent identifier
 counter <- nrow(df.raw) - 1
 df.raw$cj.id <- seq(from = 0, to = counter, by = 1)
 df.raw$cj.id[1] <- "cj.id"
-
-## 3. ENTER the number of different conjoint experiments (default is 1)
-cj.exp <- 1  # CHANGE if needed 
-
-## 4. ENTER respondent preferences from each conjoint experiment
-cj.prefs <- vector(mode="list", cj.exp)
-cj.prefs[[1]] <- c("ENTER", "ENTER", "ENTER")  # Conjoint 1, replace 'ENTER' with each variable name
 
 ## IF YOU HAVE MORE THAN 1 CONJOINT EXPERIMENT, THEN
 ## uncomment and run 'cj.prefs[[2]]', 'cj.prefs[[3]]', etc.
