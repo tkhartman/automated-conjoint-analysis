@@ -90,9 +90,9 @@ for (i in 1:cj.exp) {
               row.names = FALSE) 
     ## Load the subsetted data into a conjoint data frame
     if (exists(cj.segments[[i]]) == TRUE) {
-        df[[i]] <- read.qualtrics(file.name.sub[[i]],         # Subsetted data
-                                  respondentID = "cj.id",     # Unique respondent ID
-                                  responses = cj.prefs[[i]],  # Selected option
+        df[[i]] <- read.qualtrics(file.name.sub[[i]],            # Subsetted data
+                                  respondentID = "cj.id",        # Unique respondent ID
+                                  responses = cj.prefs[[i]],     # Selected option
                                   covariates = cj.segments[[i]]) # Grouping variables 
     }
     else {
@@ -111,7 +111,7 @@ for (i in 1:cj.exp) {
 for (i in 1:cj.exp) {
     ## Conjoint analysis - calculate AMCE estimator using all attributes in the design
     results[[i]] <- amce(data = df[[i]],                   # The conjoint dataset
-                       cj.model[[i]],                         # The model
+                       cj.model[[i]],                      # The model
                        cluster = TRUE,                     # This should be set to TRUE
                        respondent.id = "respondentIndex",  # Respondent identifier
                        baselines = baselines[[i]])         # Use the specified baselines
