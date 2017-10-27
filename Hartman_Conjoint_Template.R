@@ -34,7 +34,7 @@ cj.model <- vector(mode = "list", cj.exp)
 cj.model[[1]] <- selected ~ `ENTER ATTRIBUTE 1` + `ENTER ATTRIBUTE 2` + `ENTER ATTRIBUTE 3`
 
 ## 5. [OPTIONAL] LIST variables for subgroup analysis for each conjoint experiment
-cj.segments[[1]] <- vector(mode = "list", cj.exp)
+cj.segments <- vector(mode = "list", cj.exp)
 cj.segments[[1]] <- c("ENTER", "ENTER", "ENTER")  # Uncomment and replace 'ENTER' with each variable name
 
 ## 6. SET the baseline category for each attribute
