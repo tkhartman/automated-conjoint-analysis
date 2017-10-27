@@ -65,7 +65,7 @@ df.raw$cj.id <- seq(from = 0, to = counter, by = 1)
 df.raw$cj.id[1] <- "cj.id"
 
 ## Create the datasets, save to unique .csv files
-cj.attr <- cj.keep <- df.sub <- data.name.sub <- df <- results <- vector(mode = "list", cj.exp)
+cj.attr <- cj.keep <- df.sub <- data.name.sub <- file.name.sub <- df <- results <- vector(mode = "list", cj.exp)
 
 for (i in 1:cj.exp) {
     ## Identify embedded variables (attributes respondents saw; default is 'F')
