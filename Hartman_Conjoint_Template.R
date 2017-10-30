@@ -120,7 +120,7 @@ for (i in 1:cj.exp) {
     print(summary(results[[i]]))
 
     ## Create figures
-    pdf(paste("figure, i, ".pdf", sep = ""), width = 21/2.54, height = 29.7/2.54)
+    pdf(paste("figure", i, ".pdf", sep = ""), width = 21/2.54, height = 29.7/2.54)
     plot(results[[i]], 
          main = paste("Conjoint", i, sep = " ")),
          xlab = "Change in Predicted Probability")
