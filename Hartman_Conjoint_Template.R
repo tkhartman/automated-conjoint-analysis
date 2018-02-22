@@ -72,7 +72,7 @@ for (i in 1:cj.exp) {
     z <- paste(paste("^", paste(rep("F", i), collapse = ""), sep = ""), "\\-", sep = "")
     cj.attr[[i]] <- grep(z, names(df.raw), value = TRUE)
     ## Variables to keep
-    if (exists(cj.segments[[i]]) == TRUE) {
+    if (length(cj.segments[[i]]) > 0) {
         cj.keep[[i]] <- c("cj.id", cj.attr[[i]], cj.prefs[[i]], cj.segments[[i]])  
     } else {
         cj.keep[[i]] <- c("cj.id", cj.attr[[i]], cj.prefs[[i]])          
@@ -89,7 +89,7 @@ for (i in 1:cj.exp) {
               file.name.sub[[i]], 
               row.names = FALSE) 
     ## Load the subsetted data into a conjoint data frame
-    if (exists(cj.segments[[i]]) == TRUE) {
+    if (length(cj.segments[[i]]) > 0) {
         df[[i]] <- read.qualtrics(file.name.sub[[i]],            # Subsetted data
                                   respondentID = "cj.id",        # Unique respondent ID
                                   responses = cj.prefs[[i]],     # Selected option
