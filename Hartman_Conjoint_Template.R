@@ -126,3 +126,71 @@ for (i in 1:cj.exp) {
          xlab = "Change in Predicted Probability")
     dev.off()
 }
+
+##' Example of how to conduct conjoint analyses on subsetted data (e.g., by demographics)
+## Make a list to hold subsetted data
+cj.df <- vector(mode = "list", cj.exp)
+
+## Gender
+cj.df[[1]] <- subset(df[[1]], gender == 1)  # Male
+cj.df[[2]] <- subset(df[[1]], gender == 2)  # Female
+
+head(cj.df[[1]][["gender"]])
+head(cj.df[[2]][["gender"]])
+
+## Age categories
+cj.df[[3]] <- subset(df[[1]], age <= 29)  # 18-29 years old
+cj.df[[4]] <- subset(df[[1]], age >= 30 & age <= 49)  # 30-49 years old
+cj.df[[5]] <- subset(df[[1]], age >= 50)  # 50+ years old
+
+## Social grade
+cj.df[[6]] <- subset(df[[1]], socialgrade == 1)  # AB
+cj.df[[7]] <- subset(df[[1]], socialgrade == 2)  # C1
+cj.df[[8]] <- subset(df[[1]], socialgrade == 3)  # C2
+cj.df[[9]] <- subset(df[[1]], socialgrade == 4)  # DE
+
+## 2015 Vote
+cj.df[[10]] <- subset(df[[1]], vote2015 == 1)  # Conservative
+cj.df[[11]] <- subset(df[[1]], vote2015 == 2)  # Labour
+cj.df[[12]] <- subset(df[[1]], vote2015 == 7)  # Did not vote (DK)
+
+## Brexit vote
+cj.df[[13]] <- subset(df[[1]], votebrexit == 1)  # Remain
+cj.df[[14]] <- subset(df[[1]], votebrexit == 2)  # Leave
+
+## UK Region
+cj.df[[15]] <- subset(df[[1]], region2 == 7)  # London
+cj.df[[16]] <- subset(df[[1]], region2 == 8 | region2 == 9)  # Rest of South
+cj.df[[17]] <- subset(df[[1]], region2 >=1 & region2 <= 6)  # Rest of England
+cj.df[[18]] <- subset(df[[1]], region2 == 10)  # Wales
+cj.df[[19]] <- subset(df[[1]], region2 == 11)  # Scotland
+
+## Make a list of subsetted data labels
+cj.titles <- c("Males", "Females",
+               "18 to 29 years old", "30 to 49 years old", "50 years and above",
+               "Social grade AB", "Social grade C1", "Social grade C2", "Social grade DE",
+               "Conservative", "Labour", "Did not vote",
+               "Remain", "Leave",
+               "London", "Rest of South", "Rest of England", "Wales", "Scotland")
+
+subresults <- vector(mode = "list", cj.exp)
+
+for (i in 1:19) {
+    ## Conjoint analysis - calculate AMCE estimator using all attributes in the design
+    subresults[[i]] <- amce(data = cj.df[[i]],               # The conjoint dataset
+                         cj.model[[1]],                      # The model
+                         cluster = TRUE,                     # This should be set to TRUE
+                         respondent.id = "respondentIndex",  # Respondent identifier
+                         baselines = baselines[[1]])         # Use the specified baselines
+    
+    ## Print results from each conjoint experiment
+    print(summary(subresults[[i]]))
+    
+    ## Create and save figures
+    pdf(paste("subfigure", i, ".pdf", sep = ""), width = 21/2.54, height = 29.7/2.54)
+    plot(subresults[[i]], 
+         main = cj.titles[[i]],
+         xlab = "Change in Predicted Probability")
+    dev.off()
+}
+
