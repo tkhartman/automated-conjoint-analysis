@@ -6,7 +6,9 @@
 ##' ---
 
 ##' Housekeeping
-## Install and load the 'cjoint' package
+## Install and load the 'cjoint' package (versoin 2.0.4)
+require(devtools)
+install_version("cjoint", version = "2.0.4", repos = "http://cran.us.r-project.org")
 require('cjoint')
 
 ## Check and set your working directory (Uncomment for your system)
