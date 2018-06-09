@@ -51,7 +51,8 @@ baselines[[1]]$`ENTER ATTRIBUTE 2 HERE` <- "ENTER BASELINE VALUE 3 HERE"  # Unco
 
 ##' Prepare the data for analysis
 data.name <- paste(qualtrics, "csv", sep = ".")  # Create the file name
-df.raw <- read.csv(data.name, header = FALSE, check.names = FALSE, stringsAsFactors = FALSE)  ## Load the raw .csv
+df.raw <- read.csv(data.name, header = FALSE, check.names = FALSE, 
+                   stringsAsFactors = FALSE, na.strings = c("", " ", "NA"))  ## Load the raw .csv
 
 ## Fix the variable names and make sure first 2 rows match
 df.raw[2, ] <- df.raw[1, ]
