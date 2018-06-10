@@ -9,130 +9,6 @@
 ## Install and load the 'cjoint' package
 require('cjoint')
 
-## Function to read in qualtrics data (from 'cjoint' package version 2.0.4)
-read.qual <- function(filename, responses, covariates = NULL, respondentID = NULL) {
-  
-  ## Load CSV Results
-  qualtrics_results <- read.csv(filename)
-
-  ## Extract variable names/question names
-  var_names <- as.character(qualtrics_results[1, ])
-  q_names <- colnames(qualtrics_results)
-  qualtrics_results <- qualtrics_results[2:nrow(qualtrics_results), ]
-  colnames(qualtrics_results) <- var_names
-  
-  ## Find the attribute names
-  attr_name_cols <- var_names[grep("F-[0-9]+-[0-9]+(?!-)", var_names, perl = TRUE)]
-  
-  ## Parse to matrix
-  attr_name_matrix <- matrix(unlist(strsplit(attr_name_cols, "-")), nrow = 3,ncol = length(attr_name_cols))
-  colnames(attr_name_matrix) <- attr_name_cols
-  attr_name_matrix <- attr_name_matrix[2:nrow(attr_name_matrix), ]
-  attr_name_matrix <- as.data.frame(t(attr_name_matrix))
-  
-  ## Find the level names
-  level_name_cols <- var_names[grep("F-[0-9]+-[0-9]+-[0-9]", var_names, perl = TRUE)]
-  
-  ## Convert to matrix
-  level_name_matrix <- matrix(unlist(strsplit(level_name_cols, "-")), nrow = 4, ncol = length(level_name_cols))
-  colnames(level_name_matrix) <- level_name_cols
-  level_name_matrix <- level_name_matrix[2:nrow(level_name_matrix),]
-  level_name_matrix <- as.data.frame(t(level_name_matrix))
-
-  ## RespondentID
-    respondent_index <- qualtrics_results[, which(q_names %in% respondentID)]
-  
-  ## Get the response rows
-    response_vars <- which(q_names %in% responses)
-
-  ## Initialize output dataframe
-  out_data_dataset <- NULL
-  
-  ## Parse each row  ################### LEFT OFF HERE
-  for (r in 1:nrow(qualtrics_results)) {
-    skipRow = FALSE
-    # If no attributes, skip the row
-    attribute_refs_1 <- rownames(attr_name_matrix[attr_name_matrix[ ,1] == 1, ])
-    attribute_vector_1 <- qualtrics_results[r, attribute_refs_1]
-
-    if (is.na(attribute_vector_1[1])) {
-      skipRow = TRUE
-    } else if (attribute_vector_1[1] == "") {
-      skipRow = TRUE
-    }
-    if (skipRow != TRUE){
-    # Extract a covariate vector
-    if (!is.null(covariates)){
-      covariate_index <- which(q_names %in% covariates)
-      covnames <- q_names[covariate_index]
-      unit_cov <- qualtrics_results[r,covariate_index]
-
-    }else{
-      unit_cov <- c()
-    }
-    # For each question ####### NEED TO ADD THIS BACK IN
-    for (k in num_tasks){
-       attribute_refs <- rownames(attr_name_matrix[attr_name_matrix[,1] == k,])
-       
-       attribute_vector <- qualtrics_results[r,attribute_refs]
-       
-       num_profiles <- as.integer(unique(level_name_matrix[,2]))
-
-
-       selec_num <- qualtrics_results[r,response_vars[k]]
-
-       # For each profile
-       for (j in num_profiles){
-         profile_ref <- rownames(level_name_matrix[level_name_matrix[,1] == k&level_name_matrix[,2] == j,])
-         profile_levels <- qualtrics_results[r,profile_ref]
-
-
-         names(profile_levels) <- attribute_vector
-         
-         if (is.na(as.integer(selec_num))){
-           selec <- NA 
-         }else if (as.integer(selec_num) == as.integer(j)){
-           selec <- 1
-         }else{
-           selec <- 0
-         }
-         
-         if (!is.null(covariates)){
-           row_vec <- data.frame(r,respondent_index[r], k, j, profile_levels, selec, unit_cov)
-  
-           header <- as.vector(unlist(c("respondentIndex", "respondent","task","profile",attribute_vector, "selected", covnames)))
-          
-           colnames(row_vec) <- header
-         }else{
-           row_vec <- data.frame(r,respondent_index[r], k, j, profile_levels, selec)
-           
-           header <- as.vector(unlist(c("respondentIndex", "respondent","task","profile",attribute_vector, "selected")))
-           
-           colnames(row_vec) <- header
-         }
-         if (is.null(out_data_dataset)){
-           out_data_dataset <- row_vec
-         }else{
-           out_data_dataset <- rbind(out_data_dataset, row_vec)
-         }
-
-       }
-    }
-    }
-  }
-  # Do some post-processing
-  for (m in attribute_vector){
-    out_data_dataset[[m]] <- as.factor(out_data_dataset[[m]])
-  }
-  out_data_dataset$respondentIndex <- as.integer(out_data_dataset$respondentIndex)
-  out_data_dataset$selected <- as.integer(out_data_dataset$selected)
-  out_data_dataset$task <- as.integer(out_data_dataset$task)
-  out_data_dataset$profile <- as.integer(out_data_dataset$profile)
-  
-  # Return dataset
-  return(out_data_dataset)
-}
-
 ## Check and set your working directory (Uncomment for your system)
 getwd()  # Get the current working directory
 # setwd("C:/ENTER/YOUR/FOLDER/PATH/HERE")  # For PC (Note the forward slashes!)
@@ -213,6 +89,119 @@ for (i in 1:cj.exp) {
     write.csv(df.sub[[i]],   
               file.name.sub[[i]], 
               row.names = FALSE) 
+  
+    ## BEGIN FUNCTION to read in qualtrics data (adapted from 'cjoint' package version 2.0.4)
+    read.qual <- function(filename, responses, 
+                          covariates = NULL, respondentID) {
+    ## Load CSV Results
+    qualtrics_results <- read.csv(filename, stringsAsFactors = F)
+    ## Extract variable names/question names
+    var_names <- as.character(qualtrics_results[1, ])
+    q_names <- colnames(qualtrics_results)
+    qualtrics_results <- qualtrics_results[2:nrow(qualtrics_results), ]
+    colnames(qualtrics_results) <- var_names
+    ## Find the attribute names
+    attr_name_cols <- var_names[grep("F-[0-9]+-[0-9]+(?!-)", var_names, perl = TRUE)]
+    ## If no attributes fit the description
+    if (length(attr_name_cols) == 0) {
+    stop("Error: Cannot find any columns designating attributes and levels. 
+    Please make sure the input file originated from a Qualtrics survey designed using the Conjoint SDT")
+    return(NULL)
+    }
+    ## Parse to matrix
+    attr_name_matrix <- matrix(unlist(strsplit(attr_name_cols, "-")), nrow = 3,ncol = length(attr_name_cols))
+    colnames(attr_name_matrix) <- attr_name_cols
+    attr_name_matrix <- attr_name_matrix[2:nrow(attr_name_matrix), ]
+    attr_name_matrix <- as.data.frame(t(attr_name_matrix))
+    num_tasks <-unique(as.integer(attr_name_matrix[,1]))
+    ## Find the level names
+    level_name_cols <- var_names[grep("F-[0-9]+-[0-9]+-[0-9]", var_names, perl = TRUE)]
+    ## Convert to matrix
+    level_name_matrix <- matrix(unlist(strsplit(level_name_cols, "-")), nrow = 4, ncol = length(level_name_cols))
+    colnames(level_name_matrix) <- level_name_cols
+    level_name_matrix <- level_name_matrix[2:nrow(level_name_matrix),]
+    level_name_matrix <- as.data.frame(t(level_name_matrix))
+    ## RespondentID
+    respondent_index <- qualtrics_results[, which(q_names %in% respondentID)]
+    ## Get the response rows
+    if (is.character(responses[1])) {
+    response_vars <- which(q_names %in% responses)
+    } else {
+    response_vars <- responses
+    }
+    ## Initialize output dataframe
+    out_data_dataset <- NULL
+    ## Parse each row
+    for (r in 1:nrow(qualtrics_results)) {
+    skipRow = FALSE
+    ## If no attributes, skip the row
+    attribute_refs_1 <- rownames(attr_name_matrix[attr_name_matrix[ ,1] == 1, ])
+    attribute_vector_1 <- qualtrics_results[r, attribute_refs_1]
+    if (is.na(attribute_vector_1[1])) {
+      skipRow = TRUE
+    } else if (attribute_vector_1[1] == "") {
+      skipRow = TRUE
+    }
+    if (skipRow != TRUE) {
+    ## Extract a covariate vector
+    if (!is.null(covariates)) {
+      covariate_index <- which(q_names %in% covariates)
+      covnames <- q_names[covariate_index]
+      unit_cov <- qualtrics_results[r,covariate_index]
+    } else {
+      unit_cov <- c()
+    }
+    ## For each question
+    for (k in num_tasks) {
+       attribute_refs <- rownames(attr_name_matrix[attr_name_matrix[,1] == k, ])
+       attribute_vector <- qualtrics_results[r, attribute_refs]
+       num_profiles <- as.integer(unique(level_name_matrix[, 2]))
+       selec_num <- qualtrics_results[r, response_vars[k]]
+       ## For each profile
+       for (j in num_profiles) {
+         profile_ref <- rownames(level_name_matrix[level_name_matrix[, 1] 
+                                                   == k&level_name_matrix[, 2] == j, ])
+         profile_levels <- qualtrics_results[r, profile_ref]
+         names(profile_levels) <- attribute_vector
+         if (is.na(as.integer(selec_num))) {
+           selec <- NA 
+         } else if (as.integer(selec_num) == as.integer(j)) {
+           selec <- 1
+         } else {
+           selec <- 0
+         }
+         if (!is.null(covariates)) {
+           row_vec <- data.frame(r, respondent_index[r], k, j, profile_levels, selec, unit_cov)
+           header <- as.vector(unlist(c("respondentIndex", "respondent","task","profile",
+                                        attribute_vector, "selected", covnames)))
+           colnames(row_vec) <- header
+         } else {
+           row_vec <- data.frame(r, respondent_index[r], k, j, profile_levels, selec)
+           header <- as.vector(unlist(c("respondentIndex", "respondent","task","profile",
+                                        attribute_vector, "selected")))
+           colnames(row_vec) <- header
+         }
+         if (is.null(out_data_dataset)) {
+           out_data_dataset <- row_vec
+         } else {
+           out_data_dataset <- rbind(out_data_dataset, row_vec)
+         }
+       }
+    }
+    }
+    }
+    ## Do some post-processing
+    for (m in attribute_vector) {
+    out_data_dataset[[m]] <- as.factor(out_data_dataset[[m]])
+    }
+    out_data_dataset$respondentIndex <- as.integer(out_data_dataset$respondentIndex)
+    out_data_dataset$selected <- as.integer(out_data_dataset$selected)
+    out_data_dataset$task <- as.integer(out_data_dataset$task)
+    out_data_dataset$profile <- as.integer(out_data_dataset$profile)
+    ## Return dataset
+    return(out_data_dataset)
+    }
+    ## END FUNcTION
     ## Load the subsetted data into a conjoint data frame
     if (length(cj.segments[[i]]) > 0) {
         df[[i]] <- read.qualtrics(file.name.sub[[i]],            # Subsetted data
