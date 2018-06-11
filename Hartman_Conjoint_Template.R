@@ -204,7 +204,7 @@ for (i in 1:cj.exp) {
     ## END FUNcTION
     ## Load the subsetted data into a conjoint data frame
     if (length(cj.segments[[i]]) > 0) {
-        df[[i]] <- read.qualtrics(file.name.sub[[i]],            # Subsetted data
+        df[[i]] <- read.qual(file.name.sub[[i]],            # Subsetted data
                                   respondentID = "cj.id",        # Unique respondent ID
                                   responses = cj.prefs[[i]],     # Selected option
                                   covariates = cj.segments[[i]]) # Grouping variables 
